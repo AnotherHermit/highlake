@@ -1,0 +1,28 @@
+{
+  "name": "highlake",
+  "version": "1.0.0",
+  "description": "Small server to get data from Telldus API",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AnotherHermit/highlake.git"
+  },
+  "keywords": [
+    "Telldus",
+    "Node"
+  ],
+  "author": "Conrad Wahlén",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/AnotherHermit/highlake/issues"
+  },
+  "homepage": "https://github.com/AnotherHermit/highlake#readme",
+  "dependencies": {
+    "@influxdata/influxdb-client": "^1.4.0",
+    "node-fetch": "^2.6.0",
+    "oauth-1.0a": "^2.2.6"
+  }
+}
