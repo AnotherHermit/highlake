@@ -1,7 +1,7 @@
 const { InfluxDB } = require('@influxdata/influxdb-client');
 const { Point } = require('@influxdata/influxdb-client')
 
-const { influxTokens } = require('./keys');
+const { influxTokens } = require('../keys');
 
 const client = new InfluxDB({
   url: 'https://eu-central-1-1.aws.cloud2.influxdata.com', 
