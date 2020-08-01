@@ -1,14 +1,10 @@
-const { InfluxDB } = require('@influxdata/influxdb-client');
-const { Point } = require('@influxdata/influxdb-client')
+const { InfluxDB, Point } = require('@influxdata/influxdb-client');
 
-const { influxTokens } = require('../keys');
+const { dbs } = require('../keys');
 
-const client = new InfluxDB({
-  url: 'https://eu-central-1-1.aws.cloud2.influxdata.com', 
-  token: influxTokens.token
-});
+const client = new InfluxDB(dbs.local.host);
 
-const writeApi = client.getWriteApi(influxTokens.org, influxTokens.bucket, 's');
+const writeApi = client.getWriteApi(dbs.local.details.org, dbs.local.details.bucket, 's');
 writeApi.useDefaultTags({ host: 'Telldus API' });
 
 const writeSensor = (sensor, history) => {
