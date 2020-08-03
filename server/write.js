@@ -1,6 +1,6 @@
 const { InfluxDB, Point } = require('@influxdata/influxdb-client');
 
-const { dbs } = require('../keys');
+const { dbs } = require('../temp/keys');
 
 const client = new InfluxDB(dbs.local.host);
 
@@ -21,10 +21,12 @@ const writeSensor = (sensor, history) => {
 const closeWriter = async () => {
   try {
     await writeApi.close();
-    console.log('Finished');
+    console.log('Database updated');
+    return true;
   } catch (error) {
-    console.error(e);
-    console.log('\nFinished ERROR');
+    console.error(error);
+    console.log('\nCould not update database');
+    return false;
   }
 };
 

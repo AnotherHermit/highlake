@@ -1,6 +1,6 @@
 const OAuth = require('oauth-1.0a');
 const crypto = require('crypto');
-const { consumer, token } = require('../keys');
+const { consumer, token } = require('../temp/keys');
 
 const oauth = OAuth({
   consumer,
