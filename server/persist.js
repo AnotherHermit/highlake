@@ -1,29 +1,33 @@
-const { readFileSync, writeFileSync } = require('fs');
+const { readFileSync, writeFileSync } = require("fs");
 
-const { resolveRelative } = require('../config/paths');
+const { resolveRelative } = require("../config/paths");
 
-const getLastUpdate = () => {
-  const filePath = resolveRelative('temp/lastUpdate.json');
-  let json = {};
+class PersistState {
+  constructor(path) {
+    this.path = resolveRelative(path);
+    this.state = {};
 
-  try {
-    const raw = readFileSync(filePath);
-    json = JSON.parse(raw);
-  } catch (error) {
-    return null;
+    this.readPersistedState();
   }
 
-  if (!json.lastUpdate) return null;
-  return json.lastUpdate;
-};
+  readPersistedState = () => {
+    try {
+      const raw = readFileSync(this.path);
+      this.state = JSON.parse(raw);
+    } catch (error) {
+      console.log("No state file persited yet, using empty state");
+    }
+  };
 
-const setLastUpdate = lastUpdate => {
-  const filePath = resolveRelative('temp/lastUpdate.json');
-  const data = JSON.stringify({ lastUpdate });
-  writeFileSync(filePath, data);
-};
+  writePersistedState = () => {
+    const data = JSON.stringify(this.state);
+    writeFileSync(this.path, data);
+  };
+
+  getLastUpdate = (id) => this.state[id];
+  setLastUpdate = (id, value) => (this.state[id] = value);
+}
 
 module.exports = {
-  getLastUpdate,
-  setLastUpdate,
+  state: new PersistState("temp/lastUpdate.json"),
 };

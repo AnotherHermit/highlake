@@ -1,47 +1,78 @@
-const { fetchData } = require('./fetch');
-const { closeWriter, writeSensor } = require('./write');
-const { getLastUpdate, setLastUpdate } = require('./persist');
+const { fetchData } = require("./fetch");
+const { closeWriter, writeSensor, writeDevice } = require("./write");
+const { state } = require("./persist");
 
-const fetchSensors = async () => {
-  const response = await fetchData('/sensors/list');
-  const json = await response.json();
+const fetchList = async (url, property) => {
+  try {
+    const response = await fetchData(url);
+    console.log("fetchList -> response", response);
+    const json = await response.json();
+    return json[property];
+  } catch (error) {
+    console.log(`Could not fetch data from ${url}`);
+    throw error;
+  }
+};
 
-  return json.sensor;
-}
+fetchHistory = async (url, item) => {
+  const { id, name } = item;
+  const type = item.type || "sensor";
+  let lastUpdate = state.getLastUpdate(id) || 0;
 
-const getSensorHistory = async (sensor, lastUpdate) => {
-  const parameters = { id: sensor.id };
+  const parameters = { id };
   if (lastUpdate) parameters.from = lastUpdate;
 
-  const response = await fetchData('/sensor/history', parameters);
-  const json = await response.json();
+  const lastUpdateDate = new Date(lastUpdate * 1000).toString();
+  console.log(`Getting updates for ${name} since ${lastUpdateDate}`);
 
-  console.log(`Updated sensor ${sensor.name}, ${json.history.length} new values`);
+  let history;
+  try {
+    const response = await fetchData(url, parameters);
+    const json = await response.json();
+    history = json.history;
+  } catch (error) {
+    console.log(`Could not fetch ${type} history for ${name}.`);
 
-  return json.history;
+    throw error;
+  }
+
+  const updates = history.length;
+  console.log(`Updated ${type} ${name}, ${updates} new values`);
+
+  lastUpdate = Math.max(lastUpdate, ...history.map((value) => value.ts));
+  state.setLastUpdate(id, lastUpdate);
+
+  return history;
+};
+
+const updateSensors = async () => {
+  const sensors = await fetchList("/sensors/list", "sensor");
+
+  for (const sensor of sensors) {
+    const history = await fetchHistory("/sensor/history", sensor);
+    writeSensor(sensor, history);
+  }
+};
+
+const updateDevices = async () => {
+  const devices = await fetchList("/devices/list", "device");
+
+  for (const device of devices) {
+    const history = await fetchHistory("/device/history", device);
+    writeDevice(device, history);
+  }
 };
 
 const getAllHistories = async () => {
-  const sensors = await fetchSensors();
-  const lastUpdate = getLastUpdate();
-  console.log("Last update", new Date(lastUpdate * 1000).toString())
-
-  let latestUpdate = lastUpdate || 0;
-  for (const sensor of sensors) {
-    const history = await getSensorHistory(sensor, lastUpdate);
-    
-    latestUpdate = Math.max(latestUpdate, ...history.map(value => value.ts));
-    
-    writeSensor(sensor, history);
-  }
-
-  setLastUpdate(latestUpdate);
+  await updateSensors();
+  await updateDevices();
 
   const success = await closeWriter();
   if (success) {
-    console.log('Success');
+    state.writePersistedState();
+    console.log("Success");
   } else {
-    console.log('Failed');
+    console.log("Failed");
     process.exit(1);
   }
 };

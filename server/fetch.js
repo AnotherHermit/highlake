@@ -1,10 +1,10 @@
-const fetch = require('node-fetch');
-const { getHeaders } = require('./auth');
+const fetch = require("node-fetch");
+const { getHeaders } = require("./auth");
 
-const baseUrl = 'https://api.telldus.com/json';
+const baseUrl = "https://api.telldus.com/json";
 
 const fetchData = (url, params) => {
-  let paramString = '';
+  let paramString = "";
   if (params) {
     const p = new URLSearchParams();
     for (const [key, value] of Object.entries(params)) {
@@ -17,13 +17,13 @@ const fetchData = (url, params) => {
   if (paramString) fullUrl = `${fullUrl}?${paramString}`;
   const requestData = {
     url: fullUrl,
-    method: 'GET',
-  }
+    method: "GET",
+  };
 
   const headers = getHeaders(requestData);
   return fetch(requestData.url, { method: requestData.method, headers });
-}
+};
 
 module.exports = {
-  fetchData
-}
+  fetchData,
+};
