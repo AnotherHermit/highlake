@@ -1,5 +1,5 @@
-# Temp files
-temp
+# Secret files
+secrets.json
 
 # Logs
 logs
