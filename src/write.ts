@@ -1,4 +1,4 @@
-import { InfluxDB, Point, WritePrecision } from '@influxdata/influxdb-client';
+import { InfluxDB, Point } from '@influxdata/influxdb-client';
 
 import { apis, env } from '../secrets.json';
 
@@ -8,7 +8,7 @@ const { host, details } = apis.influxDB[db];
 const client = new InfluxDB(host);
 
 const { org, bucket } = details;
-const writeApi = client.getWriteApi(org, bucket, WritePrecision.s);
+const writeApi = client.getWriteApi(org, bucket, 's');
 
 writeApi.useDefaultTags({ host: 'Telldus API' });
 
